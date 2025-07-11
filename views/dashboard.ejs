@@ -1,0 +1,27 @@
+<h1 class="text-3xl font-bold mb-4">Boshqaruv paneli</h1>
+<p>Xush kelibsiz, <%= user.username %>!</p>
+<h2 class="text-2xl font-semibold mt-4">Sizning buyurtmalaringiz (<%= orders.length %>)</h2>
+<% if (orders.length > 0) { %>
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-200">
+        <th class="border p-2">Mahsulot</th>
+        <th class="border p-2">Soni</th>
+        <th class="border p-2">Umumiy narx</th>
+        <th class="border p-2">Sana</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <tr>
+          <td class="border p-2"><%= order.productName %></td>
+          <td class="border p-2"><%= order.quantity %></td>
+          <td class="border p-2">$<%= order.totalPrice.toFixed(2) %></td>
+          <td class="border p-2"><%= new Date(order.date).toLocaleString() %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } else { %>
+  <p>Hozircha buyurtmalar yo‘q.</p>
+<% } %>

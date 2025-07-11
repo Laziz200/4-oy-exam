@@ -1,0 +1,15 @@
+<h1 class="text-3xl font-bold mb-4">Do‘konimizga xush kelibsiz</h1>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <% products.forEach(product => { %>
+    <div class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-semibold"><%= product.name %></h2>
+      <p>Narx: $<%= product.price.toFixed(2) %></p>
+      <p>Zaxira: <%= product.stock %></p>
+      <form action="/order" method="POST">
+        <input type="hidden" name="productId" value="<%= product.id %>">
+        <input type="number" name="quantity" min="1" max="<%= product.stock %>" class="border p-1" required>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Buyurtma berish</button>
+      </form>
+    </div>
+  <% }) %>
+</div>
