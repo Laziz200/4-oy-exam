@@ -1,15 +1,43 @@
-<h1 class="text-3xl font-bold mb-4">Kirish</h1>
-<% if (error) { %>
-  <p class="text-red-600 mb-4"><%= error %></p>
-<% } %>
-<form action="/login" method="POST" class="max-w-md">
-  <div class="mb-4">
-    <label class="block">Foydalanuvchi nomi</label>
-    <input type="text" name="username" class="border p-2 w-full" required>
+<section class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="container mx-auto">
+    <div class="flex justify-center items-center">
+      <div class="w-full max-w-4xl">
+        <div class="bg-white rounded-3xl shadow-lg p-8">
+          <div class="flex flex-col md:flex-row justify-center">
+            <div class="w-full md:w-1/2 p-4">
+              <h1 class="text-3xl font-bold text-center mb-6">Kirish</h1>
+              <% if (error) { %>
+                <p class="text-red-500 text-center mb-4"><%= error %></p>
+              <% } %>
+              <form class="space-y-4" autocomplete="off" action="/login" method="POST">
+                <div class="flex items-center">
+                  <span class="mr-3 text-gray-500">📧</span>
+                  <div class="flex-1">
+                    <input type="email" id="email" name="email" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    <label for="email" class="text-sm text-gray-600">Elektron pochta</label>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <span class="mr-3 text-gray-500">🔒</span>
+                  <div class="flex-1">
+                    <input type="password" id="password" name="password" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    <label for="password" class="text-sm text-gray-600">Parol</label>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <a href="/register" class="text-blue-600 hover:underline">Akkauntingiz yo‘qmi?</a>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Kirish</button>
+                </div>
+              </form>
+            </div>
+            <div class="w-full md:w-1/2 p-4 hidden md:block">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp" class="w-full rounded-lg" alt="Namuna rasm">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="mb-4">
-    <label class="block">Parol</label>
-    <input type="password" name="password" class="border p-2 w-full" required>
-  </div>
-  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Kirish</button>
-</form>
+</section>

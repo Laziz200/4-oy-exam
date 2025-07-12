@@ -119,16 +119,16 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).render('login', { error: 'Foydalanuvchi nomi va parol kiritilishi shart' });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).render('login', { error: 'Email va parol kiritilishi shart' });
   }
   const { users } = await loadData();
-  const user = users.find(u => u.username === username && u.password === sha256(password));
+  const user = users.find(u => u.email === email && u.password === sha256(password));
   if (!user) {
-    return res.status(401).render('login', { error: 'Noto‘g‘ri foydalanuvchi nomi yoki parol' });
+    return res.status(401).render('login', { error: 'Noto‘g‘ri email yoki parol' });
   }
-  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+  const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
   res.cookie('token', token, { httpOnly: true });
   res.redirect('/');
 });
