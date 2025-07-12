@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Noutbuk",
+    "price": 999.99,
+    "stock": 10
+  },
+  {
+    "id": 2,
+    "name": "Smartfon",
+    "price": 499.99,
+    "stock": 19
+  },
+  {
+    "id": 3,
+    "name": "Quloqchin",
+    "price": 79.99,
+    "stock": 49
+  }
+]

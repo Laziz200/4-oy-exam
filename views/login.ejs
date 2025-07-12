@@ -1,4 +1,7 @@
 <h1 class="text-3xl font-bold mb-4">Kirish</h1>
+<% if (error) { %>
+  <p class="text-red-600 mb-4"><%= error %></p>
+<% } %>
 <form action="/login" method="POST" class="max-w-md">
   <div class="mb-4">
     <label class="block">Foydalanuvchi nomi</label>
