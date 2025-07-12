@@ -17,6 +17,7 @@ body {
     height: 200px;
     object-fit: cover;
     border-radius: 8px 8px 0 0;
+    display: block !important; /* Rasmlarni yashirishni oldini oladi */
 }
 
 /* Navigatsiya paneli va savat badge */
@@ -24,11 +25,11 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn-outline-dark {
+.btn-outline-dark, .btn-outline-primary {
     transition: all 0.3s ease;
 }
 
-.btn-outline-dark:hover {
+.btn-outline-dark:hover, .btn-outline-primary:hover {
     background-color: #fff;
     color: #000;
 }

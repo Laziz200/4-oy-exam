@@ -3,13 +3,13 @@
     "id": 1,
     "name": "Noutbuk",
     "price": 999.99,
-    "stock": 5
+    "stock": 0
   },
   {
     "id": 2,
     "name": "Smartfon",
     "price": 499.99,
-    "stock": 18
+    "stock": 17
   },
   {
     "id": 3,

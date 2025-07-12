@@ -5,6 +5,7 @@ import sha256 from 'sha256';
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -12,10 +13,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
-const DATA_DIR = path.join(process.cwd(), 'data');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.join(__dirname, '..', 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
+const BOOKMARKS_FILE = path.join(DATA_DIR, 'bookmarks.json');
 
 // Ma'lumotlarni fayldan o'qish va yozish funksiyalari
 const readJsonFile = async (filePath, defaultData = []) => {
@@ -44,7 +48,7 @@ const writeJsonFile = async (filePath, data) => {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(ejsLayouts);
@@ -64,7 +68,8 @@ const loadData = async () => {
   const users = await readJsonFile(USERS_FILE);
   const orders = await readJsonFile(ORDERS_FILE);
   const products = await readJsonFile(PRODUCTS_FILE, defaultProducts);
-  return { users, orders, products };
+  const bookmarks = await readJsonFile(BOOKMARKS_FILE, {});
+  return { users, orders, products, bookmarks };
 };
 
 // Autentifikatsiya middleware
@@ -170,6 +175,78 @@ app.post('/order', authenticateToken, async (req, res) => {
   }
 });
 
+// Profile update
+app.get('/profile', authenticateToken, async (req, res) => {
+  const { users } = await loadData();
+  const user = users.find(u => u.username === req.user.username);
+  if (!user) {
+    return res.status(404).render('error', { message: 'Foydalanuvchi topilmadi. Iltimos, qayta kiring.' });
+  }
+  res.render('profile', { user, error: null });
+});
+
+app.post('/profile', authenticateToken, async (req, res) => {
+  const { username, email } = req.body;
+  if (!username || !email) {
+    const { users } = await loadData();
+    const user = users.find(u => u.username === req.user.username);
+    if (!user) {
+      return res.status(404).render('error', { message: 'Foydalanuvchi topilmadi.' });
+    }
+    return res.render('profile', { user, error: 'Foydalanuvchi nomi va email kiritilishi shart' });
+  }
+  const { users } = await loadData();
+  const currentUser = users.find(u => u.username === req.user.username);
+  if (!currentUser) {
+    return res.status(404).render('error', { message: 'Foydalanuvchi topilmadi.' });
+  }
+  if (users.find(u => u.username === username && u.username !== currentUser.username)) {
+    return res.render('profile', { user: currentUser, error: 'Foydalanuvchi nomi allaqachon mavjud' });
+  }
+  if (users.find(u => u.email === email && u.email !== currentUser.email)) {
+    return res.render('profile', { user: currentUser, error: 'Email allaqachon ro‘yxatdan o‘tgan' });
+  }
+  currentUser.username = username;
+  currentUser.email = email;
+  try {
+    await writeJsonFile(USERS_FILE, users);
+    req.user.username = username; // Tokenni yangilash uchun
+    res.redirect('/profile');
+  } catch (err) {
+    res.status(500).render('error', { message: 'Profile yangilashda xato yuz berdi' });
+  }
+});
+
+// Bookmark
+app.post('/bookmark', authenticateToken, async (req, res) => {
+  const { productId } = req.body;
+  if (!productId) {
+    return res.status(400).render('error', { message: 'Mahsulot ID si kiritilmadi' });
+  }
+  const { products, bookmarks } = await loadData();
+  const product = products.find(p => p.id === parseInt(productId));
+  if (!product) {
+    return res.status(400).render('error', { message: 'Mahsulot topilmadi' });
+  }
+  const username = req.user.username;
+  if (!bookmarks[username]) {
+    bookmarks[username] = [];
+  }
+  if (!bookmarks[username].includes(productId)) {
+    bookmarks[username].push(productId);
+    await writeJsonFile(BOOKMARKS_FILE, bookmarks);
+  }
+  res.redirect('/');
+});
+
+app.get('/bookmarks', authenticateToken, async (req, res) => {
+  const { products, bookmarks } = await loadData();
+  const username = req.user.username;
+  const bookmarkIds = bookmarks[username] || [];
+  const bookmarkProducts = products.filter(p => bookmarkIds.includes(p.id));
+  res.render('bookmarks', { products: bookmarkProducts, user: req.user });
+});
+
 // Chiqish funksiyasi
 app.get('/logout', (req, res) => {
   res.clearCookie('token');
@@ -187,5 +264,5 @@ app.use((err, req, res, next) => {
 // Serverni ishga tushirish
 app.listen(PORT, async () => {
   await fs.mkdir(DATA_DIR, { recursive: true });
-  console.log(`Server ${PORT}-portda ishlamoqda`);
+  console.log(`Server ${PORT}-portda ishlamoqda, soat ${new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent' })}`);
 });

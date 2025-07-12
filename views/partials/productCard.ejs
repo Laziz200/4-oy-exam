@@ -1,34 +1,35 @@
 <div class="col mb-5">
   <div class="card h-100">
     <!-- Product image -->
-    <img class="card-img-top" width="450" height="300" src="<%= product.image || 'https://via.placeholder.com/450x300' %>" alt="<%= product.name %>">
+    <img class="card-img-top" src="<%= product.image %>" alt="<%= product.name %>">
     <!-- Product details -->
     <div class="card-body p-4">
       <div class="text-center">
         <!-- Product name -->
         <h5 class="fw-bolder"><%= product.name %></h5>
-        <!-- Product reviews -->
+        <!-- Product rating -->
         <div class="d-flex justify-content-center small text-warning mb-2">
-          <div class="bi-star-fill"></div>
-          <div class="bi-star-fill"></div>
-          <div class="bi-star-fill"></div>
-          <div class="bi-star-fill"></div>
-          <div class="bi-star-fill"></div>
+          <% for(let i = 0; i < 5; i++) { %>
+            <div class="bi-star-fill"></div>
+          <% } %>
         </div>
         <!-- Product price -->
+        <span class="text-muted text-decoration-line-through">$<%= (product.price * 1.2).toFixed(2) %></span>
         $<%= product.price.toFixed(2) %>
       </div>
     </div>
     <!-- Product actions -->
     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-      <form action="/order" method="POST">
+      <form action="/order" method="post" class="d-flex justify-content-center mb-2">
         <input type="hidden" name="productId" value="<%= product.id %>">
-        <div class="input-group mb-3">
-          <input type="number" name="quantity" class="form-control text-center" value="1" min="1" max="<%= product.stock %>">
+        <div class="input-group w-50">
+          <input type="number" class="form-control" name="quantity" value="1" min="1" max="<%= product.stock %>" required>
+          <button type="submit" class="btn btn-outline-dark ms-2">Sotib olish</button>
         </div>
-        <div class="text-center">
-          <button type="submit" class="btn btn-outline-dark mt-auto">Sotib olish</button>
-        </div>
+      </form>
+      <form action="/bookmark" method="post" class="d-flex justify-content-center">
+        <input type="hidden" name="productId" value="<%= product.id %>">
+        <button type="submit" class="btn btn-outline-primary">Bookmark</button>
       </form>
     </div>
   </div>
