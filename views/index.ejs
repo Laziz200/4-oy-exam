@@ -1,15 +1,18 @@
-<h1 class="text-3xl font-bold mb-4">Do‘konimizga xush kelibsiz</h1>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-  <% products.forEach(product => { %>
-    <div class="bg-white p-4 rounded shadow">
-      <h2 class="text-xl font-semibold"><%= product.name %></h2>
-      <p>Narx: $<%= product.price.toFixed(2) %></p>
-      <p>Zaxira: <%= product.stock %></p>
-      <form action="/order" method="POST">
-        <input type="hidden" name="productId" value="<%= product.id %>">
-        <input type="number" name="quantity" min="1" max="<%= product.stock %>" class="border p-1" required>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Buyurtma berish</button>
-      </form>
+<header class="bg-dark py-5">
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+      <h1 class="display-4 fw-bolder">Xush kelibsiz</h1>
+      <p class="lead fw-normal text-white-50 mb-0">Xaridni boshlang</p>
     </div>
-  <% }) %>
-</div>
+  </div>
+</header>
+<link rel="stylesheet" href="../public/css/styles.css">
+<section class="py-5">
+  <div class="container px-4 px-lg-5 mt-5">
+    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+      <% for(let product of products) { %>
+        <%- include("./partials/productCard.ejs", { product }) %>
+      <% } %>
+    </div>
+  </div>
+</section>

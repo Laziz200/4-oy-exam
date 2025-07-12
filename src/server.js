@@ -44,7 +44,7 @@ const writeJsonFile = async (filePath, data) => {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(process.cwd(), 'public')));
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(ejsLayouts);
@@ -52,9 +52,11 @@ app.set('layout', 'layout');
 
 // Namuna mahsulotlar (agar fayl bo'sh bo'lsa)
 const defaultProducts = [
-  { id: 1, name: 'Noutbuk', price: 999.99, stock: 10 },
-  { id: 2, name: 'Smartfon', price: 499.99, stock: 20 },
-  { id: 3, name: 'Quloqchin', price: 79.99, stock: 50 }
+  { id: 1, name: 'Noutbuk', price: 999.99, stock: 10, image: '/assets/images/laptop.jpg' },
+  { id: 2, name: 'Smartfon', price: 499.99, stock: 20, image: '/assets/images/Iphone.jpg' },
+  { id: 3, name: 'Quloqchin', price: 79.99, stock: 50, image: '/assets/images/djoystik.jpg' },
+  { id: 4, name: 'Playstation', price: 399.99, stock: 15, image: '/assets/images/playstation.jpg' },
+  { id: 5, name: 'Televisor', price: 699.99, stock: 8, image: '/assets/images/televisor.jpg' }
 ];
 
 // Ma'lumotlarni yuklash
@@ -83,8 +85,9 @@ const authenticateToken = (req, res, next) => {
 
 // Marshrutlar
 app.get('/', authenticateToken, async (req, res) => {
-  const { products } = await loadData();
-  res.render('index', { products });
+  const { products, orders } = await loadData();
+  const orderCount = orders.filter(o => o.username === req.user.username).length;
+  res.render('index', { products, user: req.user, orderCount });
 });
 
 app.get('/register', (req, res) => {
