@@ -21,7 +21,6 @@ const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
 const BOOKMARKS_FILE = path.join(DATA_DIR, 'bookmarks.json');
 
-// Ma'lumotlarni fayldan o'qish va yozish funksiyalari
 const readJsonFile = async (filePath, defaultData = []) => {
   try {
     await fs.access(filePath);
@@ -45,7 +44,7 @@ const writeJsonFile = async (filePath, data) => {
   }
 };
 
-// Middleware
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -54,7 +53,6 @@ app.set('view engine', 'ejs');
 app.use(ejsLayouts);
 app.set('layout', 'layout');
 
-// Namuna mahsulotlar (agar fayl bo'sh bo'lsa)
 const defaultProducts = [
   { id: 1, name: 'Noutbuk', price: 999.99, stock: 10, image: '/assets/images/laptop.jpg' },
   { id: 2, name: 'Smartfon', price: 499.99, stock: 20, image: '/assets/images/Iphone.jpg' },
@@ -63,7 +61,6 @@ const defaultProducts = [
   { id: 5, name: 'Televisor', price: 699.99, stock: 8, image: '/assets/images/televisor.jpg' }
 ];
 
-// Ma'lumotlarni yuklash
 const loadData = async () => {
   const users = await readJsonFile(USERS_FILE);
   const orders = await readJsonFile(ORDERS_FILE);
@@ -72,7 +69,6 @@ const loadData = async () => {
   return { users, orders, products, bookmarks };
 };
 
-// Autentifikatsiya middleware
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
@@ -88,7 +84,6 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Marshrutlar
 app.get('/', authenticateToken, async (req, res) => {
   const { products, orders } = await loadData();
   const orderCount = orders.filter(o => o.username === req.user.username).length;
@@ -175,7 +170,6 @@ app.post('/order', authenticateToken, async (req, res) => {
   }
 });
 
-// Profile update
 app.get('/profile', authenticateToken, async (req, res) => {
   const { users } = await loadData();
   const user = users.find(u => u.username === req.user.username);
@@ -210,14 +204,13 @@ app.post('/profile', authenticateToken, async (req, res) => {
   currentUser.email = email;
   try {
     await writeJsonFile(USERS_FILE, users);
-    req.user.username = username; // Tokenni yangilash uchun
+    req.user.username = username; 
     res.redirect('/profile');
   } catch (err) {
     res.status(500).render('error', { message: 'Profile yangilashda xato yuz berdi' });
   }
 });
 
-// Bookmark
 app.post('/bookmark', authenticateToken, async (req, res) => {
   const { productId } = req.body;
   if (!productId) {
@@ -247,13 +240,11 @@ app.get('/bookmarks', authenticateToken, async (req, res) => {
   res.render('bookmarks', { products: bookmarkProducts, user: req.user });
 });
 
-// Chiqish funksiyasi
 app.get('/logout', (req, res) => {
   res.clearCookie('token');
   res.redirect('/login');
 });
 
-// Xatolarni boshqarish middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   const statusCode = err.status || 500;
@@ -261,7 +252,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render('error', { message });
 });
 
-// Serverni ishga tushirish
 app.listen(PORT, async () => {
   await fs.mkdir(DATA_DIR, { recursive: true });
   console.log(`Server ${PORT}-portda ishlamoqda, soat ${new Date().toLocaleTimeString('uz-UZ', { timeZone: 'Asia/Tashkent' })}`);
