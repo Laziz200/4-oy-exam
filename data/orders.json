@@ -70,5 +70,21 @@
     "quantity": 3,
     "totalPrice": 2999.9700000000003,
     "date": "2025-07-12T04:23:18.764Z"
+  },
+  {
+    "username": "j",
+    "productId": "2",
+    "productName": "Smartfon",
+    "quantity": 5,
+    "totalPrice": 2499.95,
+    "date": "2025-07-12T08:11:11.557Z"
+  },
+  {
+    "username": "j",
+    "productId": "2",
+    "productName": "Smartfon",
+    "quantity": 1,
+    "totalPrice": 499.99,
+    "date": "2025-07-12T08:22:38.394Z"
   }
 ]

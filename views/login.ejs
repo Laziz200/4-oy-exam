@@ -1,3 +1,8 @@
+<style>
+  flex-1 {
+    ;
+  }
+</style>
 <section class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="container mx-auto">
     <div class="flex justify-center items-center">
@@ -11,18 +16,21 @@
               <% } %>
               <form class="space-y-4" autocomplete="off" action="/login" method="POST">
                 <div class="flex items-center">
-                  <span class="mr-3 text-gray-500">📧</span>
-                  <div class="flex-1">
+                 
+                  <center><div class="flex-1 ">
+                    <label for="email" class="text-sm text-gray-600">Elektron pochta</label><br>
                     <input type="email" id="email" name="email" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                    <label for="email" class="text-sm text-gray-600">Elektron pochta</label>
                   </div>
+                </center>
+                
                 </div>
-                <div class="flex items-center">
-                  <span class="mr-3 text-gray-500">🔒</span>
-                  <div class="flex-1">
-                    <input type="password" id="password" name="password" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                    <label for="password" class="text-sm text-gray-600">Parol</label>
-                  </div>
+                  <center>
+                    
+                    <div class="flex-1">
+                     <label for="password" class="text-sm text-gray-600">Parol</label><br>
+                      <input type="password" id="password" name="password" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    </div>
+                  </center>
                 </div>
                 <div class="text-center">
                   <a href="/register" class="text-blue-600 hover:underline">Akkauntingiz yo‘qmi?</a>
@@ -33,7 +41,7 @@
               </form>
             </div>
             <div class="w-full md:w-1/2 p-4 hidden md:block">
-              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp" class="w-full rounded-lg" alt="Namuna rasm">
+             
             </div>
           </div>
         </div>
