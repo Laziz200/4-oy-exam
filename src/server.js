@@ -24,6 +24,7 @@ const readJsonFile = async (filePath, defaultData = []) => {
     const data = await fs.readFile(filePath, 'utf8');
     return JSON.parse(data);
   } catch (err) {
+    console.log(`Fayl ${filePath} topilmadi, yangi fayl yaratilmoqda...`);
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(filePath, JSON.stringify(defaultData));
     return defaultData;
@@ -31,14 +32,20 @@ const readJsonFile = async (filePath, defaultData = []) => {
 };
 
 const writeJsonFile = async (filePath, data) => {
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  try {
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    console.log(`Ma'lumotlar ${filePath} ga muvaffaqiyatli yozildi`);
+  } catch (err) {
+    console.error(`Faylga yozishda xato: ${filePath}`, err);
+    throw new Error('Malumotlarni faylga yozishda xato yuz berdi');
+  }
 };
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use(cookieParser()); // Cookie-parser middleware qo'shildi
+app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(ejsLayouts);
 app.set('layout', 'layout');
@@ -60,9 +67,9 @@ const loadData = async () => {
 
 // Autentifikatsiya middleware
 const authenticateToken = (req, res, next) => {
-  const token = req.cookies.token; // Tokenni cookie'dan o'qish
+  const token = req.cookies.token;
   if (!token) {
-    return res.redirect('/login'); // Tizimga kirmagan bo'lsa, login sahifasiga
+    return res.redirect('/login');
   }
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
@@ -81,21 +88,30 @@ app.get('/', authenticateToken, async (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('register');
+  res.render('register', { error: null });
 });
 
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).render('error', { message: 'Foydalanuvchi nomi va parol kiritilishi shart' });
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).render('register', { error: 'Foydalanuvchi nomi, email va parol kiritilishi shart' });
   }
   const { users } = await loadData();
   if (users.find(u => u.username === username)) {
-    return res.status(400).render('error', { message: 'Foydalanuvchi nomi allaqachon mavjud' });
+    return res.status(400).render('register', { error: 'Foydalanuvchi nomi allaqachon mavjud' });
   }
-  users.push({ username, password: sha256(password) });
-  await writeJsonFile(USERS_FILE, users);
-  res.redirect('/login');
+  if (users.find(u => u.email === email)) {
+    return res.status(400).render('register', { error: 'Email allaqachon ro‘yxatdan o‘tgan' });
+  }
+  const newUser = { username, email, password: sha256(password) };
+  users.push(newUser);
+  try {
+    await writeJsonFile(USERS_FILE, users);
+    console.log(`Yangi foydalanuvchi qo'shildi: ${username}, ${email}`);
+    res.redirect('/login');
+  } catch (err) {
+    res.status(500).render('error', { message: 'Foydalanuvchi ma\'lumotlarini saqlashda xato yuz berdi' });
+  }
 });
 
 app.get('/login', (req, res) => {
@@ -113,8 +129,8 @@ app.post('/login', async (req, res) => {
     return res.status(401).render('login', { error: 'Noto‘g‘ri foydalanuvchi nomi yoki parol' });
   }
   const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
-  res.cookie('token', token, { httpOnly: true }); // Tokenni cookie sifatida saqlash
-  res.redirect('/'); // Muvaffaqiyatli kirganda bosh sahifaga yo'naltirish
+  res.cookie('token', token, { httpOnly: true });
+  res.redirect('/');
 });
 
 app.get('/dashboard', authenticateToken, async (req, res) => {
@@ -142,14 +158,18 @@ app.post('/order', authenticateToken, async (req, res) => {
     totalPrice: product.price * quantity,
     date: new Date()
   });
-  await writeJsonFile(PRODUCTS_FILE, products);
-  await writeJsonFile(ORDERS_FILE, orders);
-  res.redirect('/dashboard');
+  try {
+    await writeJsonFile(PRODUCTS_FILE, products);
+    await writeJsonFile(ORDERS_FILE, orders);
+    res.redirect('/dashboard');
+  } catch (err) {
+    res.status(500).render('error', { message: 'Buyurtmani saqlashda xato yuz berdi' });
+  }
 });
 
 // Chiqish funksiyasi
 app.get('/logout', (req, res) => {
-  res.clearCookie('token'); // Tokenni cookie'dan o'chirish
+  res.clearCookie('token');
   res.redirect('/login');
 });
 
