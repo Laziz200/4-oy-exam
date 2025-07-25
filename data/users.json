@@ -35,5 +35,20 @@
     "username": "sherbek",
     "email": "sherbek@gmail.com",
     "password": "9ff89864c4780e5dc60cc552898aef09c3d7d970a83dfe7d5e8690e43ef0c5c9"
+  },
+  {
+    "username": "aziz",
+    "email": "shakarovlaziz243@gmail.com",
+    "password": "$2b$10$MWI1h.gYOJuUE1jYjK.k1evHzinZeIl6o8nwh4iwseSAxELRWu63e"
+  },
+  {
+    "username": "ali",
+    "email": "ali@gmail.com",
+    "password": "$2b$10$vRZSV2fGwf9ccHst9GZ6zu67Z3JNX9rcZgEKWaz5h/BhEUSEhORmy"
+  },
+  {
+    "username": "vali",
+    "email": "vali@gmail.com",
+    "password": "$2b$10$c6pNb5Qh2VE1HAcmucu2HOdUyUHGt8eTnWTJKdMbcyeZKW1k4eq36"
   }
 ]

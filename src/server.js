@@ -1,7 +1,8 @@
 import express from 'express';
 import ejsLayouts from 'express-ejs-layouts';
 import jwt from 'jsonwebtoken';
-import sha256 from 'sha256';
+import bcrypt from 'bcrypt';
+import Joi from 'joi';
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
@@ -20,6 +21,33 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
 const BOOKMARKS_FILE = path.join(DATA_DIR, 'bookmarks.json');
+
+const registerSchema = Joi.object({
+  username: Joi.string().min(3).max(30).required().messages({
+    'string.base': 'Foydalanuvchi nomi matn bo‘lishi kerak',
+    'string.min': 'Foydalanuvchi nomi kamida 3 belgi bo‘lishi kerak',
+    'string.max': 'Foydalanuvchi nomi 30 belgidan oshmasligi kerak',
+    'any.required': 'Foydalanuvchi nomi kiritilishi shart'
+  }),
+  email: Joi.string().email().required().messages({
+    'string.email': 'Yaroqli email manzilini kiriting',
+    'any.required': 'Email kiritilishi shart'
+  }),
+  password: Joi.string().min(6).required().messages({
+    'string.min': 'Parol kamida 6 belgi bo‘lishi kerak',
+    'any.required': 'Parol kiritilishi shart'
+  })
+});
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.email': 'Yaroqli email manzilini kiriting',
+    'any.required': 'Email kiritilishi shart'
+  }),
+  password: Joi.string().required().messages({
+    'any.required': 'Parol kiritilishi shart'
+  })
+});
 
 const readJsonFile = async (filePath, defaultData = []) => {
   try {
@@ -43,7 +71,6 @@ const writeJsonFile = async (filePath, data) => {
     throw new Error('Malumotlarni faylga yozishda xato yuz berdi');
   }
 };
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -96,9 +123,12 @@ app.get('/register', (req, res) => {
 
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
-  if (!username || !email || !password) {
-    return res.status(400).render('register', { error: 'Foydalanuvchi nomi, email va parol kiritilishi shart' });
+
+  const { error } = registerSchema.validate({ username, email, password });
+  if (error) {
+    return res.status(400).render('register', { error: error.details[0].message });
   }
+
   const { users } = await loadData();
   if (users.find(u => u.username === username)) {
     return res.status(400).render('register', { error: 'Foydalanuvchi nomi allaqachon mavjud' });
@@ -106,9 +136,10 @@ app.post('/register', async (req, res) => {
   if (users.find(u => u.email === email)) {
     return res.status(400).render('register', { error: 'Email allaqachon ro‘yxatdan o‘tgan' });
   }
-  const newUser = { username, email, password: sha256(password) };
-  users.push(newUser);
   try {
+    const hashedPassword = await bcrypt.hash(password, 10); 
+    const newUser = { username, email, password: hashedPassword };
+    users.push(newUser);
     await writeJsonFile(USERS_FILE, users);
     console.log(`Yangi foydalanuvchi qo'shildi: ${username}, ${email}`);
     res.redirect('/login');
@@ -123,12 +154,15 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).render('login', { error: 'Email va parol kiritilishi shart' });
+
+  const { error } = loginSchema.validate({ email, password });
+  if (error) {
+    return res.status(400).render('login', { error: error.details[0].message });
   }
+
   const { users } = await loadData();
-  const user = users.find(u => u.email === email && u.password === sha256(password));
-  if (!user) {
+  const user = users.find(u => u.email === email);
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).render('login', { error: 'Noto‘g‘ri email yoki parol' });
   }
   const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });

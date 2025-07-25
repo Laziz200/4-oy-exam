@@ -94,5 +94,13 @@
     "quantity": 10,
     "totalPrice": 4999.9,
     "date": "2025-07-12T09:22:59.957Z"
+  },
+  {
+    "username": "ali",
+    "productId": "2",
+    "productName": "Smartfon",
+    "quantity": 1,
+    "totalPrice": 499.99,
+    "date": "2025-07-25T05:33:05.651Z"
   }
 ]
