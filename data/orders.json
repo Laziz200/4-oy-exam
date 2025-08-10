@@ -102,5 +102,13 @@
     "quantity": 1,
     "totalPrice": 499.99,
     "date": "2025-07-25T05:33:05.651Z"
+  },
+  {
+    "username": "cat",
+    "productId": "3",
+    "productName": "Quloqchin",
+    "quantity": 4,
+    "totalPrice": 319.96,
+    "date": "2025-08-10T17:06:07.208Z"
   }
 ]

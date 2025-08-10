@@ -1,27 +1,60 @@
-<h1 class="text-3xl font-bold mb-4">Boshqaruv paneli</h1>
-<p>Xush kelibsiz, <%= user.username %>!</p>
-<h2 class="text-2xl font-semibold mt-4">Sizning buyurtmalaringiz (<%= orders.length %>)</h2>
-<% if (orders.length > 0) { %>
-  <table class="w-full border-collapse">
-    <thead>
-      <tr class="bg-gray-200">
-        <th class="border p-2">Mahsulot</th>
-        <th class="border p-2">Soni</th>
-        <th class="border p-2">Umumiy narx</th>
-        <th class="border p-2">Sana</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% orders.forEach(order => { %>
-        <tr>
-          <td class="border p-2"><%= order.productName %></td>
-          <td class="border p-2"><%= order.quantity %></td>
-          <td class="border p-2">$<%= order.totalPrice.toFixed(2) %></td>
-          <td class="border p-2"><%= new Date(order.date).toLocaleString() %></td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-<% } else { %>
-  <p>Hozircha buyurtmalar yo‘q.</p>
-<% } %>
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <% if (user) { %>
+      <h1>Xush kelibsiz, <%= user.username %>!</h1>
+    <% } else { %>
+      <h1>Xush kelibsiz!</h1>
+      <div class="alert alert-warning">Foydalanuvchi ma'lumotlari topilmadi.</div>
+    <% } %>
+
+    <% if (success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <h2>Sizning buyurtmalaringiz</h2>
+    <% if (orders && orders.length > 0) { %>
+      <ul>
+        <% orders.forEach(order => { %>
+          <li>
+            <%= order.productName %> - <%= order.quantity %> dona, Umumiy: $<%= order.totalPrice.toFixed(2) %>
+            (<%= new Date(order.date).toLocaleString('uz-UZ') %>)
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>Hozircha buyurtmalar yo‘q.</p>
+    <% } %>
+
+    <h2>Mahsulotlar</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      <% if (products && products.length > 0) { %>
+        <% products.forEach(product => { %>
+          <%- include('partials/productCard', { product: product }) %>
+        <% }) %>
+      <% } else { %>
+        <p>Mahsulotlar topilmadi.</p>
+      <% } %>
+    </div>
+
+    <h2>Admin bilan bog‘lanish</h2>
+    <form action="/send-email" method="POST">
+      <div class="mb-3">
+        <label for="message" class="form-label">Xabar</label>
+        <textarea class="form-control" id="message" name="message" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Jo‘natish</button>
+    </form>
+  </div>
+</body>
+</html>
